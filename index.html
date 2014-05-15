@@ -311,6 +311,13 @@ function getText(elem) { // only allow input[type=text]/textarea
 
 h1 {
 	font-size: 1.6em;
+	vertical-align: top;
+	line-height: 80px;
+	margin-bottom: -40px;
+}
+h1 img {
+	width: 160px;
+	margin-left: -160px;
 }
 
 form {
@@ -470,7 +477,10 @@ footer a {
 </head>
 <body>
     <div id='body'>
-        <h1>한손 한글입력기</h1>
+        <h1>
+			<img src="hanson.png"/>
+			한손 한글입력기
+		</h1>
         <div class='description'>
             <p>
                 기본 입력기를 영어(ASCII)로 하고 텍스트 입력창에서 자판을 입력해보세요. <br>
