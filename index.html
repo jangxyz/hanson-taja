@@ -66,6 +66,9 @@ $(function() {
             // SPACE
             else if (hasHansonMode && event.keyCode === 32) {
                 event.preventDefault();
+                if (!isSpaced) {
+                    showFlippedLayout();
+                }
                 isSpaced = true;
                 //console.log('spaced.');
             }
@@ -76,33 +79,7 @@ $(function() {
             var keyCode = handleKeyInput(event);
             if (keyCode !== false) {
                 // effect
-                var ch = String.fromCharCode(keyCode);
-
-                var keyCellName = ch;
-                switch (ch) {
-                    case ";":   keyCellName = 'semicolon';    break;
-                    case ",":   keyCellName = 'comma';        break;
-                    case ".":   keyCellName = 'period';       break;
-                    case "/":   keyCellName = 'slash';        break;
-                    case "'":   keyCellName = 'quote';        break;
-                    case "`":   keyCellName = 'backquote';    break;
-                    case "-":   keyCellName = 'minus';        break;
-                    case "=":   keyCellName = 'equal';        break;
-                    case "[":   keyCellName = 'leftbracket';  break;
-                    case "]":   keyCellName = 'rightbracket'; break;
-                    case "\\":  keyCellName = 'backslash';   break;
-                    default:    keyCellName = ch;
-                }
-                var $keyCell = $('table:visible td.keycell-' + keyCellName);
-                //console.log($keyCell);
-
-                $keyCell.addClass('highlight');
-                setTimeout(function() {
-                    $keyCell.removeClass('highlight').addClass('highlight-fade-effect');
-                    setTimeout(function() {
-                        $keyCell.removeClass('highlight-fade-effect');
-                    }, 500);
-                }, 0);
+                highlightPressedKey(keyCode);
 
                 //
                 event.preventDefault();
@@ -117,9 +94,12 @@ $(function() {
                 // behave as normal space
                 if (!lastKeyWhileSpaced) {
                     $text.val($text.val() + ' ');
+                    h.hangul_ic_flush(hic);
                 }
                 isSpaced = false;
                 lastKeyWhileSpaced = null;
+
+                showFlippedLayout();
             }
         })
         .on('focus', function(event) {
@@ -178,55 +158,114 @@ $(function() {
         return keyCode;
     }
 
+    var FLIP = {
+        '0': '1', // 0: 1
+        '1': '0', // 1: 0
+        '2': '9', // 2: 9
+        '3': '8', // 3: 8
+        '4': '7', // 4: 7
+        '5': '6', // 5: 6
+        '6': '5', // 6: 5
+        '7': '4', // 7: 4
+        '8': '3', // 8: 3
+        '9': '2', // 9: 2
+        'a': ';', // a: ;
+        'b': 'b', // b: b
+        'c': 'm', // c: m
+        'd': 'k', // d: k
+        'e': 'i', // e: i
+        'f': 'j', // f: j
+        'g': 'h', // g: h
+        'h': 'g', // h: g
+        'i': 'e', // i: e
+        'j': 'f', // j: f
+        'k': 'd', // k: d
+        'l': 's', // l: s
+        'm': 'c', // m: c
+        'n': 'v', // n: v
+        'o': 'w', // o: w
+        'p': 'q', // p: q
+        'q': 'p', // q: p
+        'r': 'u', // r: u
+        's': 'l', // s: l
+        't': 'y', // t: y
+        'u': 'r', // u: r
+        'v': 'n', // v: n
+        'w': 'o', // w: o
+        'x': ',', // x: ,
+        'y': 't', // y: t
+        'z': '.', // z: .
+        ';': 'a', // ;: a
+        ':': 'x', // ,: x
+        '.': 'z', // .: z
+    };
     function flip(keyCode) {
         var ch = String.fromCharCode(keyCode);
-        var FLIP = {
-            '0': '1', // 0: 1
-            '1': '0', // 1: 0
-            '2': '9', // 2: 9
-            '3': '8', // 3: 8
-            '4': '7', // 4: 7
-            '5': '6', // 5: 6
-            '6': '5', // 6: 5
-            '7': '4', // 7: 4
-            '8': '3', // 8: 3
-            '9': '2', // 9: 2
-            'a': ';', // a: ;
-            'b': 'b', // b: b
-            'c': 'm', // c: m
-            'd': 'k', // d: k
-            'e': 'i', // e: i
-            'f': 'j', // f: j
-            'g': 'h', // g: h
-            'h': 'g', // h: g
-            'i': 'e', // i: e
-            'j': 'f', // j: f
-            'k': 'd', // k: d
-            'l': 's', // l: s
-            'm': 'c', // m: c
-            'n': 'v', // n: v
-            'o': 'w', // o: w
-            'p': 'q', // p: q
-            'q': 'p', // q: p
-            'r': 'u', // r: u
-            's': 'l', // s: l
-            't': 'y', // t: y
-            'u': 'r', // u: r
-            'v': 'n', // v: n
-            'w': 'o', // w: o
-            'x': ',', // x: ,
-            'y': 't', // y: t
-            'z': '.', // z: .
-            ';': 'a', // ;: a
-            ':': 'x', // ,: x
-            '.': 'z', // .: z
-        };
 
         var flippedChar = FLIP[ch];
         if (!flippedChar) {
             throw new Error("cannot flip: " + keyCode + " - " + ch);
         }
         return flippedChar.charCodeAt(0);
+    }
+
+    function highlightPressedKey(keyCode) {
+        var ch = String.fromCharCode(keyCode);
+
+        var $keyCell = _getKeyCell(ch);
+        //console.log($keyCell);
+
+        $keyCell.addClass('highlight');
+        setTimeout(function() {
+            $keyCell.removeClass('highlight').addClass('highlight-fade-effect');
+            setTimeout(function() {
+                $keyCell.removeClass('highlight-fade-effect');
+            }, 500);
+        }, 0);
+    }
+    function _getKeyCell(ch) {
+        var keyCellName = ch;
+        switch (ch) {
+            case ";":   keyCellName = 'semicolon';    break;
+            case ":":   keyCellName = 'colon';        break;
+            case ",":   keyCellName = 'comma';        break;
+            case ".":   keyCellName = 'period';       break;
+            case "/":   keyCellName = 'slash';        break;
+            case "'":   keyCellName = 'quote';        break;
+            case "`":   keyCellName = 'backquote';    break;
+            case "-":   keyCellName = 'minus';        break;
+            case "=":   keyCellName = 'equal';        break;
+            case "[":   keyCellName = 'leftbracket';  break;
+            case "]":   keyCellName = 'rightbracket'; break;
+            case "\\":  keyCellName = 'backslash';    break;
+            default:    keyCellName = ch;
+        }
+        return $('table:visible td.keycell-' + keyCellName)
+    }
+    function showFlippedLayout() {
+        var t = new Date();
+        var visited = {};
+        for(var key in FLIP) {
+            if (visited[key]) {
+                continue;
+            }
+
+            var $sourceKeyCell = _getKeyCell(key),
+                $targetKeyCell = _getKeyCell(FLIP[key]);
+
+            var sourceIsBeforeTarget = $targetKeyCell.prev().is($sourceKeyCell),
+                targetIsBeforeSource = $sourceKeyCell.prev().is($targetKeyCell);
+            var $targetNeighbor = $targetKeyCell.prev();
+
+            //
+            if (!targetIsBeforeSource) { $sourceKeyCell.prev().after($targetKeyCell); }
+            if (!sourceIsBeforeTarget) { $targetNeighbor.after($sourceKeyCell); }
+            //(sourceIsBeforeTarget ? $targetNeighbor.before : $targetNeighbor.after).apply($targetNeighbor, $sourceKeyCell);
+
+            visited[key] = true;
+            visited[FLIP[key]] = true;
+        }
+        console.log(new Date() - t);
     }
 
 
@@ -255,6 +294,7 @@ function getText(elem) { // only allow input[type=text]/textarea
     </script>
 
     <style>
+
 #body {
     max-width: 640px;
     margin: 0 auto;
@@ -266,6 +306,10 @@ function getText(elem) { // only allow input[type=text]/textarea
     margin-right: auto; 
     width: 90%; 
     font-size: 95%;
+}
+
+h1 {
+	font-size: 1.6em;
 }
 
 form {
@@ -410,30 +454,29 @@ td.graykeycell {
         <h1>자바스크립트 한손 한글입력기</h1>
         <div class='description'>
             <p>
-                원하는 자판을 고르고, 텍스트 입력창에서 자판을 입력해보세요. <br>
-                기본 입력기가 영어(ASCII)로 되어 있어야 합니다.
+                기본 입력기를 영어(ASCII)로 하고 텍스트 입력창에서 자판을 입력해보세요. <br>
             </p>
             <p>
                 한손모드일 경우, 스페이스바를 누른 채로 키를 입력하면 건너편의 키가 입력됩니다.
-            </p>
-            <p>
-                <label for="space-modifier">한손모드</label>
-                <input type="checkbox" name="hanson-mode" value="space-modifier" id="space-modifier" checked>
             </p>
         </div>
 
 
         <form>
+            <p style='text-align: center;'>
+                <label for="space-modifier">한손모드</label>
+                <input type="checkbox" name="hanson-mode" value="space-modifier" id="space-modifier" checked>
+            </p>
             <p>Alt:</p>
             <ol class='radio-button-group'>
-                <li><input type="radio" name="keyboard" value="ro" id="ro"><label for="ro">로마자</label> </li>
+                <li><input type="radio" name="keyboard" value="2y" id="2y"><label for="2y">두벌식 옛글</label> </li>
                 <li><input type="radio" name="keyboard" value="2"  id="2" checked><label for="2">두벌식</label> </li>
                 <li><input type="radio" name="keyboard" value="3f" id="3f"><label for="3f">세벌식 최종</label> </li>
-                <li><input type="radio" name="keyboard" value="2y" id="2y"><label for="2y">두벌식 옛글</label> </li>
                 <li><input type="radio" name="keyboard" value="39" id="39"><label for="39">세벌식 390</label> </li>
                 <li><input type="radio" name="keyboard" value="3s" id="3s"><label for="3s">세벌식 순아래</label> </li>
                 <li><input type="radio" name="keyboard" value="3y" id="3y"><label for="3y">세벌식 옛글</label> </li>
                 <li><input type="radio" name="keyboard" value="32" id="32"><label for="32">세벌식 두벌배열</label> </li>
+                <li><input type="radio" name="keyboard" value="ro" id="ro"><label for="ro">로마자</label> </li>
             </ol>
         </form>
 
@@ -1670,4 +1713,3 @@ td.graykeycell {
     </div>
 </body>
 </html>
-
