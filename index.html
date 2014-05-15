@@ -3,7 +3,7 @@
 <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>자바스크립트 한손 한글입력기</title>
+    <title>한손 한글입력기</title>
 
     <script type="text/javascript" src="hangul.min.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
@@ -299,6 +299,7 @@ function getText(elem) { // only allow input[type=text]/textarea
     max-width: 640px;
     margin: 0 auto;
     margin-top: 30px;
+	margin-bottom: 30px;
 }
 
 #body .description p {
@@ -447,11 +448,29 @@ td.graykeycell {
 }
 
 
+footer {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	border-top: 1px solid grey;
+	background-color: rgba(255,255,255,0.8);
+	padding-right: 2em;
+	text-align: right;
+	font-size: 80%;
+}
+footer p {
+	margin: 2px 20px 1px 0;
+}
+footer a {
+	text-decoration: none;
+	color: darkblue;
+}
+
     </style>
 </head>
 <body>
     <div id='body'>
-        <h1>자바스크립트 한손 한글입력기</h1>
+        <h1>한손 한글입력기</h1>
         <div class='description'>
             <p>
                 기본 입력기를 영어(ASCII)로 하고 텍스트 입력창에서 자판을 입력해보세요. <br>
@@ -1711,5 +1730,10 @@ td.graykeycell {
         <textarea autofocus placeholder="텍스트를 입력하세요."></textarea>
 
     </div>
+	<footer>
+		<p>
+			Powered by <a href="https://github.com/jangxyz/libhangul.js" target="_blank">libhangul.js</a>
+		</p>
+	</footer>
 </body>
 </html>
